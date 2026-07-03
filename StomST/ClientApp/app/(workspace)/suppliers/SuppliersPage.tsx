@@ -1,8 +1,10 @@
 "use client";
 
+import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
-import { Building2, Mail, MapPin, Phone, Search, ShieldCheck, Tag, X } from "lucide-react";
+import { Building2, Mail, MapPin, Phone, Search, ShieldCheck, Tag } from "lucide-react";
 import { LoadingBadge, SkeletonList } from "@/components/FeedbackState";
+import { ModalShell } from "@/components/ModalShell";
 import { PageSearch, PageSelect, PageToolbar } from "@/components/PageFilters";
 import { getSuppliers } from "@/lib/api";
 import { suppliers as fallbackSuppliers, type Supplier } from "@/lib/suppliers";
@@ -38,26 +40,6 @@ export default function SuppliersPage() {
 
     return () => controller.abort();
   }, []);
-
-  useEffect(() => {
-    if (!selectedSupplier) {
-      return;
-    }
-
-    function handleEscape(event: KeyboardEvent) {
-      if (event.key === "Escape") {
-        setSelectedSupplier(null);
-      }
-    }
-
-    document.addEventListener("keydown", handleEscape);
-    document.body.style.overflow = "hidden";
-
-    return () => {
-      document.removeEventListener("keydown", handleEscape);
-      document.body.style.overflow = "";
-    };
-  }, [selectedSupplier]);
 
   const filteredItems = useMemo(() => {
     const term = search.trim().toLowerCase();
@@ -196,18 +178,13 @@ function SupplierDetailsModal({ supplier, onClose }: { supplier: Supplier; onClo
   const mainEmail = mainBranch?.emails[0];
 
   return (
-    <div className="supplier-modal-backdrop" role="presentation" onMouseDown={onClose}>
-      <article
-        className="supplier-modal"
-        role="dialog"
-        aria-modal="true"
-        aria-labelledby="supplier-modal-title"
-        onMouseDown={(event) => event.stopPropagation()}
-      >
-        <button className="supplier-modal-close" type="button" onClick={onClose} aria-label="Закрыть">
-          <X size={18} />
-        </button>
-
+    <ModalShell
+      backdropClassName="supplier-modal-backdrop"
+      articleClassName="supplier-modal"
+      closeClassName="supplier-modal-close"
+      labelledBy="supplier-modal-title"
+      onClose={onClose}
+    >
         <div className="supplier-modal-head">
           <span>
             <Building2 size={24} />
@@ -320,11 +297,10 @@ function SupplierDetailsModal({ supplier, onClose }: { supplier: Supplier; onClo
         </div>
 
         <div className="supplier-modal-actions">
-          <button type="button">Открыть товары поставщика</button>
-          <button type="button">Создать заказ</button>
+          <Link href={{ pathname: "/products", query: { supplier: supplier.name } }}>Открыть товары поставщика</Link>
+          <Link href="/need">Создать заказ</Link>
         </div>
-      </article>
-    </div>
+    </ModalShell>
   );
 }
 

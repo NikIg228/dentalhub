@@ -1,8 +1,9 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useMemo, useState } from "react";
-import { CheckCircle2, Clock3, PackageCheck, Truck, X } from "lucide-react";
+import { useMemo, useState } from "react";
+import { CheckCircle2, Clock3, PackageCheck, Truck } from "lucide-react";
+import { ModalShell } from "@/components/ModalShell";
 import { PageSearch, PageSelect, PageToolbar } from "@/components/PageFilters";
 
 type OrderStatus = "Согласование" | "В доставке" | "Завершен";
@@ -99,26 +100,6 @@ export default function OrdersPage() {
   }, [search, sortMode, statusFilter]);
 
   const activeCount = orders.filter((order) => order.status !== "Завершен").length;
-
-  useEffect(() => {
-    if (!selectedOrder) {
-      return;
-    }
-
-    function handleEscape(event: KeyboardEvent) {
-      if (event.key === "Escape") {
-        setSelectedOrder(null);
-      }
-    }
-
-    document.addEventListener("keydown", handleEscape);
-    document.body.style.overflow = "hidden";
-
-    return () => {
-      document.removeEventListener("keydown", handleEscape);
-      document.body.style.overflow = "";
-    };
-  }, [selectedOrder]);
 
   return (
     <section className="orders-directory" aria-label="Журнал заказов">
@@ -224,18 +205,13 @@ function OrderRow({ order, onOpen }: { order: Order; onOpen: () => void }) {
 
 function OrderDetailsModal({ order, onClose }: { order: Order; onClose: () => void }) {
   return (
-    <div className="order-modal-backdrop" role="presentation" onMouseDown={onClose}>
-      <article
-        className="order-modal"
-        role="dialog"
-        aria-modal="true"
-        aria-labelledby="order-modal-title"
-        onMouseDown={(event) => event.stopPropagation()}
-      >
-        <button className="order-modal-close" type="button" onClick={onClose} aria-label="Закрыть">
-          <X size={18} />
-        </button>
-
+    <ModalShell
+      backdropClassName="order-modal-backdrop"
+      articleClassName="order-modal"
+      closeClassName="order-modal-close"
+      labelledBy="order-modal-title"
+      onClose={onClose}
+    >
         <div className="order-modal-head">
           <span>
             <PackageCheck size={24} />
@@ -295,8 +271,7 @@ function OrderDetailsModal({ order, onClose }: { order: Order; onClose: () => vo
             Закрыть
           </button>
         </div>
-      </article>
-    </div>
+    </ModalShell>
   );
 }
 

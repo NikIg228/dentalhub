@@ -1,9 +1,11 @@
 "use client";
 
 import Link from "next/link";
+import { useSearchParams } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
-import { ArrowRight, Package, X } from "lucide-react";
+import { ArrowRight, Package } from "lucide-react";
 import { SkeletonList } from "@/components/FeedbackState";
+import { ModalShell } from "@/components/ModalShell";
 import { PageSearch, PageSelect, PageToolbar } from "@/components/PageFilters";
 import { getProducts } from "@/lib/api";
 import { discountedPrice, formatMoney, products as fallbackProducts, type Product } from "@/lib/catalog";
@@ -12,8 +14,10 @@ type StockFilter = "all" | "available" | "empty";
 type SortMode = "name" | "price" | "stock";
 
 export default function ProductsPage() {
+  const searchParams = useSearchParams();
+  const initialSearch = searchParams.get("brand") ?? searchParams.get("supplier") ?? "";
   const [items, setItems] = useState<Product[]>(fallbackProducts);
-  const [search, setSearch] = useState("");
+  const [search, setSearch] = useState(initialSearch);
   const [category, setCategory] = useState("Все");
   const [brand, setBrand] = useState("Все");
   const [stockFilter, setStockFilter] = useState<StockFilter>("all");
@@ -56,7 +60,11 @@ export default function ProductsPage() {
       .filter((item) => {
         const stock = getProductStock(item);
         const matchesSearch =
-          !term || [item.name, item.brand, item.category, item.form, item.country].join(" ").toLowerCase().includes(term);
+          !term ||
+          [item.name, item.brand, item.category, item.form, item.country, ...item.quotes.map((quote) => quote.supplier)]
+            .join(" ")
+            .toLowerCase()
+            .includes(term);
         const matchesCategory = category === "Все" || item.category === category;
         const matchesBrand = brand === "Все" || item.brand === brand;
         const matchesStock =
@@ -86,26 +94,6 @@ export default function ProductsPage() {
     setStockFilter("all");
     setSortMode("name");
   }
-
-  useEffect(() => {
-    if (!selectedProduct) {
-      return;
-    }
-
-    function handleEscape(event: KeyboardEvent) {
-      if (event.key === "Escape") {
-        setSelectedProduct(null);
-      }
-    }
-
-    document.addEventListener("keydown", handleEscape);
-    document.body.style.overflow = "hidden";
-
-    return () => {
-      document.removeEventListener("keydown", handleEscape);
-      document.body.style.overflow = "";
-    };
-  }, [selectedProduct]);
 
   return (
     <section className="products-directory" aria-label="Справочник товаров">
@@ -235,18 +223,13 @@ function ProductDetailsModal({ product, onClose }: { product: Product; onClose: 
   const bestQuote = getBestQuote(product);
 
   return (
-    <div className="product-modal-backdrop" role="presentation" onMouseDown={onClose}>
-      <article
-        className="product-modal"
-        role="dialog"
-        aria-modal="true"
-        aria-labelledby="product-modal-title"
-        onMouseDown={(event) => event.stopPropagation()}
-      >
-        <button className="product-modal-close" type="button" onClick={onClose} aria-label="Закрыть">
-          <X size={18} />
-        </button>
-
+    <ModalShell
+      backdropClassName="product-modal-backdrop"
+      articleClassName="product-modal"
+      closeClassName="product-modal-close"
+      labelledBy="product-modal-title"
+      onClose={onClose}
+    >
         <div className="product-modal-media" aria-label="Фото товара">
           <Package size={56} />
           <span>Фото товара</span>
@@ -315,8 +298,7 @@ function ProductDetailsModal({ product, onClose }: { product: Product; onClose: 
             )}
           </div>
         </div>
-      </article>
-    </div>
+    </ModalShell>
   );
 }
 

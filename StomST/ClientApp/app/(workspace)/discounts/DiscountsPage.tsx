@@ -1,8 +1,9 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useMemo, useState } from "react";
-import { ArrowRight, BadgePercent, PackageSearch, X } from "lucide-react";
+import { useMemo, useState } from "react";
+import { ArrowRight, BadgePercent, PackageSearch } from "lucide-react";
+import { ModalShell } from "@/components/ModalShell";
 import { PageSearch, PageSelect, PageToolbar } from "@/components/PageFilters";
 
 type OfferType = "percent" | "bundle";
@@ -19,10 +20,9 @@ type DiscountOffer = {
 
 const offers: DiscountOffer[] = [
   { brand: "Straumann", value: "-15%", note: "На всю продукцию", type: "percent", discountScore: 15 },
-  { brand: "3M", value: "-10%", note: "На расходные материалы", type: "percent", discountScore: 10 },
-  { brand: "Kerr", value: "2+1", note: "На композитные материалы", type: "bundle", discountScore: 12 },
-  { brand: "Dentium", value: "-20%", note: "На импланты", type: "percent", discountScore: 20 },
-  { brand: "Voco", value: "-15%", note: "На все материалы", type: "percent", discountScore: 15 }
+  { brand: "Euronda", value: "-10%", note: "На расходные материалы", type: "percent", discountScore: 10 },
+  { brand: "Sanctuary", value: "2+1", note: "На материалы для изоляции", type: "bundle", discountScore: 12 },
+  { brand: "Spident", value: "-8%", note: "На анестезию и иглы", type: "percent", discountScore: 8 }
 ];
 
 const typeOptions = [
@@ -70,26 +70,6 @@ export default function DiscountsPage() {
         return right.discountScore - left.discountScore;
       });
   }, [search, sortMode, typeFilter]);
-
-  useEffect(() => {
-    if (!selectedOffer) {
-      return;
-    }
-
-    function handleEscape(event: KeyboardEvent) {
-      if (event.key === "Escape") {
-        setSelectedOffer(null);
-      }
-    }
-
-    document.addEventListener("keydown", handleEscape);
-    document.body.style.overflow = "hidden";
-
-    return () => {
-      document.removeEventListener("keydown", handleEscape);
-      document.body.style.overflow = "";
-    };
-  }, [selectedOffer]);
 
   return (
     <section className="discounts-directory" aria-label="Скидки и акции">
@@ -172,7 +152,7 @@ function DiscountRow({ offer, onOpen }: { offer: DiscountOffer; onOpen: () => vo
       <span role="cell" data-label="Тип">
         {typeLabels[offer.type]}
       </span>
-      <Link href="/products" onClick={(event) => event.stopPropagation()}>
+      <Link href={{ pathname: "/products", query: { brand: offer.brand } }} onClick={(event) => event.stopPropagation()}>
         Товары
         <ArrowRight size={15} />
       </Link>
@@ -182,18 +162,13 @@ function DiscountRow({ offer, onOpen }: { offer: DiscountOffer; onOpen: () => vo
 
 function DiscountDetailsModal({ offer, onClose }: { offer: DiscountOffer; onClose: () => void }) {
   return (
-    <div className="discount-modal-backdrop" role="presentation" onMouseDown={onClose}>
-      <article
-        className="discount-modal"
-        role="dialog"
-        aria-modal="true"
-        aria-labelledby="discount-modal-title"
-        onMouseDown={(event) => event.stopPropagation()}
-      >
-        <button className="discount-modal-close" type="button" onClick={onClose} aria-label="Закрыть">
-          <X size={18} />
-        </button>
-
+    <ModalShell
+      backdropClassName="discount-modal-backdrop"
+      articleClassName="discount-modal"
+      closeClassName="discount-modal-close"
+      labelledBy="discount-modal-title"
+      onClose={onClose}
+    >
         <div className="discount-modal-head">
           <span>
             <BadgePercent size={24} />
@@ -228,12 +203,11 @@ function DiscountDetailsModal({ offer, onClose }: { offer: DiscountOffer; onClos
         </div>
 
         <div className="discount-modal-actions">
-          <Link href="/products">Смотреть товары</Link>
+          <Link href={{ pathname: "/products", query: { brand: offer.brand } }}>Смотреть товары</Link>
           <button type="button" onClick={onClose}>
             Закрыть
           </button>
         </div>
-      </article>
-    </div>
+    </ModalShell>
   );
 }
