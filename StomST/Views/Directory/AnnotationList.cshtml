@@ -1,0 +1,157 @@
+﻿@using StomST.Models
+@model List<AnnotationModel>
+
+@{
+    var columns = new List<(string Key, string Header, Func<AnnotationModel, object> Selector)>
+    {
+        ("AnnotationId",                  "ID",                                 x => x.AnnotationId),
+        ("ProductId",                     "Product ID",                         x => x.ProductId),
+        ("TradeName",                     "Торговое название",                 x => x.TradeName),
+        ("INN",                           "МНН",                                x => x.INN),
+        ("FullDescription",               "Полное описание",                   x => x.FullDescription),
+        ("PharmacologicalProperties",     "Фармакологические свойства",       x => x.PharmacologicalProperties),
+        ("DosageForm",                    "Лекарственная форма",               x => x.DosageForm),
+        ("Composition",                   "Состав",                            x => x.Composition),
+        ("Description",                   "Описание",                          x => x.Description),
+        ("PharmacotherapeuticGroup",      "Фармакотерапевтическая группа",    x => x.PharmacotherapeuticGroup),
+        ("Indications",                   "Показания к применению",            x => x.Indications),
+        ("UsageMethods",                  "Способы применения",                x => x.UsageMethods),
+        ("SideEffects",                   "Побочные действия",                 x => x.SideEffects),
+        ("Contraindications",             "Противопоказания",                  x => x.Contraindications),
+        ("DrugInteractions",              "Лек. взаимодействия",               x => x.DrugInteractions),
+        ("SpecialInstructions",           "Особые указания",                   x => x.SpecialInstructions),
+        ("Overdose",                      "Передозировка",                     x => x.Overdose),
+        ("Packaging",                     "Форма выпуска и упаковка",          x => x.Packaging),
+        ("StorageConditions",             "Условия хранения",                  x => x.StorageConditions),
+        ("ShelfLife",                     "Срок хранения",                     x => x.ShelfLife),
+        ("PharmacyDispensingConditions",  "Условия отпуска из аптек",         x => x.PharmacyDispensingConditions),
+        ("CreatedAt",                     "Дата создания",                     x => x.CreatedAt.ToString("g"))
+    };
+    var visibleCount = 6; // показываем первые 6 колонок
+    var rowsPerPage = 50;
+}
+
+<h2>Аннотации</h2>
+<div class="mb-3 d-flex justify-content-between">
+    <input type="text" id="search" class="form-control w-50" placeholder="Поиск аннотаций..." />
+    <button class="btn btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#columnsModal">
+        Добавить колонки
+    </button>
+</div>
+
+<table class="table table-striped table-hover">
+    <thead>
+        <tr>
+            <th>№</th>
+            @for (int i = 0; i < columns.Count; i++)
+            {
+                var col = columns[i];
+                <th data-key="@col.Key" style="@(i < visibleCount ? "" : "display:none;")">
+                    @col.Header
+                </th>
+            }
+        </tr>
+    </thead>
+    <tbody id="tbl">
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td class="row-num"></td>
+                @for (int i = 0; i < columns.Count; i++)
+                {
+                    var col = columns[i];
+                    <td data-key="@col.Key" style="@(i < visibleCount ? "" : "display:none;")">
+                        @col.Selector(item)
+                    </td>
+                }
+            </tr>
+        }
+    </tbody>
+</table>
+
+<nav aria-label="Page navigation example">
+    <ul id="pagination" class="pagination justify-content-center flex-wrap"></ul>
+</nav>
+
+<!-- Modal добавления колонок -->
+<div class="modal fade" id="columnsModal" tabindex="-1" aria-labelledby="columnsModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-scrollable">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="columnsModalLabel">Добавьте колонки</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Закрыть"></button>
+            </div>
+            <div class="modal-body d-flex flex-wrap gap-2">
+                @for (int i = visibleCount; i < columns.Count; i++)
+                {
+                    var col = columns[i];
+                    <button type="button" class="btn btn-outline-primary btn-sm column-toggle-btn" data-key="@col.Key">
+                        @col.Header
+                    </button>
+                }
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" data-bs-dismiss="modal">Закрыть</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const visibleCount = @visibleCount;
+            const rowsPerPage = @rowsPerPage;
+            const table = document.getElementById('tbl');
+            const rows = Array.from(table.querySelectorAll('tr'));
+            const pagination = document.getElementById('pagination');
+            const searchInput = document.getElementById('search');
+
+            function filterRow(row) {
+                const term = searchInput.value.toLowerCase();
+                // Поиск по всем видимым ячейкам строки
+                return Array.from(row.children)
+                    .filter(cell => cell.style.display !== 'none')
+                    .some(cell => cell.textContent.toLowerCase().includes(term));
+            }
+
+            function renderPage(page) {
+                const start = (page - 1) * rowsPerPage;
+                const end = start + rowsPerPage;
+                rows.forEach((r, i) => {
+                    const visible = i >= start && i < end && filterRow(r);
+                    r.style.display = visible ? '' : 'none';
+                    if (visible) r.querySelector('.row-num').textContent = i + 1;
+                });
+                renderPagination(page);
+            }
+
+            function renderPagination(current) {
+                pagination.innerHTML = '';
+                const filteredCount = rows.filter(filterRow).length;
+                const pageCount = Math.ceil(filteredCount / rowsPerPage);
+                for (let i = 1; i <= pageCount; i++) {
+                    const li = document.createElement('li');
+                    li.className = 'page-item' + (i === current ? ' active' : '');
+                    const a = document.createElement('a');
+                    a.className = 'page-link'; a.href = '#'; a.textContent = i;
+                    a.addEventListener('click', e => { e.preventDefault(); renderPage(i); });
+                    li.appendChild(a);
+                    pagination.appendChild(li);
+                }
+            }
+
+            searchInput.addEventListener('keyup', () => renderPage(1));
+            renderPage(1);
+
+            // Toggle columns: add new
+            document.querySelectorAll('.column-toggle-btn').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const key = btn.getAttribute('data-key');
+                    document.querySelectorAll(`[data-key="${key}"]`).forEach(el => el.style.display = '');
+                    btn.disabled = true;
+                });
+            });
+        });
+    </script>
+}

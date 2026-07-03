@@ -1,0 +1,1351 @@
+﻿<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Каталог стоматологических товаров</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.10.0/font/bootstrap-icons.min.css" rel="stylesheet">
+    <style>
+        .avatar-sm {
+            width: 40px;
+            height: 40px;
+        }
+
+        .expand-icon {
+            transition: transform 0.2s;
+        }
+
+            .expand-icon.rotated {
+                transform: rotate(90deg);
+            }
+
+        .product-row:hover {
+            background-color: rgba(0, 123, 255, 0.05);
+        }
+
+        .card {
+            box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+            border: 1px solid rgba(0, 0, 0, 0.125);
+        }
+
+        .table th {
+            border-top: none;
+            font-weight: 600;
+        }
+
+        .nav-pills .nav-link {
+            border-radius: 0.375rem;
+        }
+
+            .nav-pills .nav-link.active {
+                background-color: #0d6efd;
+            }
+
+        .bg-gradient-primary {
+            background: linear-gradient(45deg, #0d6efd, #6610f2);
+        }
+
+        .alert {
+            border: none;
+            border-radius: 0.5rem;
+        }
+
+        .btn-sm {
+            padding: 0.25rem 0.5rem;
+            font-size: 0.875rem;
+        }
+
+        .form-select-sm {
+            padding: 0.25rem 0.5rem;
+            font-size: 0.875rem;
+        }
+
+        .table-responsive {
+            border-radius: 0.375rem;
+        }
+
+        .modal-header {
+            border-bottom: 1px solid #dee2e6;
+        }
+
+        .modal-footer {
+            border-top: 1px solid #dee2e6;
+        }
+    </style>
+</head>
+<body class="bg-light">
+    <div class="container-fluid py-4">
+        <section class="section">
+            <div class="row">
+                <!-- Левая колонка: каталог товаров -->
+                <div class="col-lg-6">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="card-title mb-0">
+                                <i class="bi bi-capsule-pill me-2"></i>Поиск и фильтрация товаров
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <!-- Панель поиска и фильтров -->
+                            <div class="row mb-1">
+                                <div class="col">
+                                    <div class="input-group">
+                                        <span class="input-group-text"><i class="bi bi-search"></i></span>
+                                        <input type="text" id="searchInput" class="form-control" placeholder="Поиск по наименованию...">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row g-3 mb-1">
+                                
+                                <div class="col">
+                                    <select id="cityFilter" class="form-select">
+                                        <option value="">Все города</option>
+                                        <option>Алматы</option>
+                                        <option>Астана</option>
+                                        <option>Шымкент</option>
+                                    </select>
+                                </div>
+                                <div class="col">
+                                    <select id="supplierFilter" class="form-select">
+                                        <option value="">Все поставщики</option>
+                                        <option>ТОО "ДентМед КЗ"</option>
+                                        <option>ТОО "Стом-Снаб"</option>
+                                        <option>ТОО "МедТехника Плюс"</option>
+                                    </select>
+                                </div>
+                                <div class="col">
+                                    <button class="btn btn-outline-primary w-100" type="button" data-bs-toggle="collapse" data-bs-target="#advancedFilters">
+                                        <i class="bi bi-funnel"></i> Фильтры
+                                    </button>
+                                </div>
+                            </div>
+
+                            <!-- Дополнительные фильтры -->
+                            <div class="collapse mb-4" id="advancedFilters">
+                                <div class="card card-body bg-light">
+                                    <div class="row g-3">
+                                        <div class="col-md-3">
+                                            <label class="form-label small">Категория</label>
+                                            <select id="categoryFilter" class="form-select form-select-sm">
+                                                <option value="">Выберите категорию</option>
+                                                <option>Расходные материалы</option>
+                                                <option>Изоляция полости рта</option>
+                                                <option>Анестезия</option>
+                                                <option>Имплантология</option>
+                                            </select>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <label class="form-label small">Бренд</label>
+                                            <select id="brandFilter" class="form-select form-select-sm">
+                                                <option value="">Выберите бренд</option>
+                                                <option>Euronda</option>
+                                                <option>Benovy</option>
+                                                <option>Sanctuary</option>
+                                                <option>Hygenic</option>
+                                                <option>Spident</option>
+                                                <option>C-K Ject</option>
+                                                <option>Mega'gen</option>
+                                                <option>Straumann</option>
+                                            </select>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <label class="form-label small">Страна</label>
+                                            <select id="countryFilter" class="form-select form-select-sm">
+                                                <option value="">Выберите страну</option>
+                                                <option>Италия</option>
+                                                <option>Малайзия</option>
+                                                <option>США</option>
+                                                <option>Южная Корея</option>
+                                                <option>Швейцария</option>
+                                            </select>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <label class="form-label small">Материал</label>
+                                            <select id="materialFilter" class="form-select form-select-sm">
+                                                <option value="">Выберите материал</option>
+                                                <option>Пластик</option>
+                                                <option>Латекс</option>
+                                                <option>Металл</option>
+                                                <option>Титан</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Таблица товаров -->
+                            <div class="table-responsive">
+                                <table class="table table-hover" id="productTable">
+                                    <thead class="table-light">
+                                        <tr>
+                                            <th width="40"></th>
+                                            <th>Наименование</th>
+                                            <th width="80" class="text-center">Действие</th>
+                                            <th width="40" class="text-center">Инфо</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <!-- Слюноотсосы Euronda -->
+                                        <tr class="product-row" data-product-id="1" data-product-name="Слюноотсосы Euronda" data-brand="Euronda" data-country="Италия" data-category="Расходные материалы" data-material="Пластик">
+                                            <td>
+                                                <button class="btn btn-link btn-sm p-0 text-primary" data-bs-toggle="collapse" data-bs-target="#details1">
+                                                    <i class="bi bi-chevron-right expand-icon"></i>
+                                                </button>
+                                            </td>
+                                            <td>
+                                                <div class="d-flex align-items-center">
+                                                    <div class="avatar-sm bg-primary bg-opacity-10 rounded-circle d-flex align-items-center justify-content-center me-3">
+                                                        <i class="bi bi-droplet text-primary"></i>
+                                                    </div>
+                                                    <div>
+                                                        <h6 class="mb-0">Слюноотсосы Euronda</h6>
+                                                        <small class="text-muted">150мм, ø6.5мм, 100шт</small>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <td class="text-center">
+                                                <button class="btn btn-success btn-sm rounded-pill">
+                                                    <i class="bi bi-plus-lg"></i>
+                                                </button>
+                                            </td>
+                                            <td class="text-center">
+                                                <i class="bi bi-info-circle text-info" data-bs-toggle="tooltip" data-bs-html="true"
+                                                   title="<strong>Категория:</strong> Расходные материалы<br><strong>Бренд:</strong> Euronda<br><strong>Страна:</strong> Италия" style="cursor: help;"></i>
+                                            </td>
+                                        </tr>
+                                        <tr class="collapse" id="details1">
+                                            <td colspan="4" class="border-0 pt-0">
+                                                <div class="card border-0 bg-light">
+                                                    <div class="card-body">
+                                                        <div class="row">
+                                                            <div class="col-md-6">
+                                                                <dl class="row mb-0">
+                                                                    <dt class="col-sm-4 small">ID:</dt>
+                                                                    <dd class="col-sm-8 small">1</dd>
+                                                                    <dt class="col-sm-4 small">Название:</dt>
+                                                                    <dd class="col-sm-8 small">Слюноотсосы Euronda</dd>
+                                                                    <dt class="col-sm-4 small">Длина:</dt>
+                                                                    <dd class="col-sm-8 small">150мм</dd>
+                                                                    <dt class="col-sm-4 small">Диаметр:</dt>
+                                                                    <dd class="col-sm-8 small">6.5мм</dd>
+                                                                    <dt class="col-sm-4 small">Упаковка:</dt>
+                                                                    <dd class="col-sm-8 small">100 шт</dd>
+                                                                </dl>
+                                                            </div>
+                                                            <div class="col-md-6">
+                                                                <dl class="row mb-0">
+                                                                    <dt class="col-sm-4 small">Бренд:</dt>
+                                                                    <dd class="col-sm-8 small"><span class="badge bg-primary bg-opacity-10 text-primary">Euronda</span></dd>
+                                                                    <dt class="col-sm-4 small">Страна:</dt>
+                                                                    <dd class="col-sm-8 small">Италия</dd>
+                                                                    <dt class="col-sm-4 small">Материал:</dt>
+                                                                    <dd class="col-sm-8 small">Пластик</dd>
+                                                                    <dt class="col-sm-4 small">Категория:</dt>
+                                                                    <dd class="col-sm-8 small">Расходные материалы</dd>
+                                                                </dl>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                        </tr>
+
+                                        <!-- Слюноотсосы Benovy -->
+                                        <tr class="product-row" data-product-id="2" data-product-name="Слюноотсосы Benovy" data-brand="Benovy" data-country="Малайзия" data-category="Расходные материалы" data-material="Пластик">
+                                            <td>
+                                                <button class="btn btn-link btn-sm p-0 text-primary" data-bs-toggle="collapse" data-bs-target="#details2">
+                                                    <i class="bi bi-chevron-right expand-icon"></i>
+                                                </button>
+                                            </td>
+                                            <td>
+                                                <div class="d-flex align-items-center">
+                                                    <div class="avatar-sm bg-warning bg-opacity-10 rounded-circle d-flex align-items-center justify-content-center me-3">
+                                                        <i class="bi bi-droplet text-warning"></i>
+                                                    </div>
+                                                    <div>
+                                                        <h6 class="mb-0">Слюноотсосы Benovy</h6>
+                                                        <small class="text-muted">150мм, 100шт</small>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <td class="text-center">
+                                                <button class="btn btn-success btn-sm rounded-pill">
+                                                    <i class="bi bi-plus-lg"></i>
+                                                </button>
+                                            </td>
+                                            <td class="text-center">
+                                                <i class="bi bi-info-circle text-info" data-bs-toggle="tooltip" data-bs-html="true"
+                                                   title="<strong>Категория:</strong> Расходные материалы<br><strong>Бренд:</strong> Benovy<br><strong>Страна:</strong> Малайзия" style="cursor: help;"></i>
+                                            </td>
+                                        </tr>
+                                        <tr class="collapse" id="details2">
+                                            <td colspan="4" class="border-0 pt-0">
+                                                <div class="card border-0 bg-light">
+                                                    <div class="card-body">
+                                                        <div class="row">
+                                                            <div class="col-md-6">
+                                                                <dl class="row mb-0">
+                                                                    <dt class="col-sm-4 small">ID:</dt>
+                                                                    <dd class="col-sm-8 small">2</dd>
+                                                                    <dt class="col-sm-4 small">Название:</dt>
+                                                                    <dd class="col-sm-8 small">Слюноотсосы Benovy</dd>
+                                                                    <dt class="col-sm-4 small">Длина:</dt>
+                                                                    <dd class="col-sm-8 small">150мм</dd>
+                                                                    <dt class="col-sm-4 small">Упаковка:</dt>
+                                                                    <dd class="col-sm-8 small">100 шт</dd>
+                                                                </dl>
+                                                            </div>
+                                                            <div class="col-md-6">
+                                                                <dl class="row mb-0">
+                                                                    <dt class="col-sm-4 small">Бренд:</dt>
+                                                                    <dd class="col-sm-8 small"><span class="badge bg-warning bg-opacity-10 text-warning">Benovy</span></dd>
+                                                                    <dt class="col-sm-4 small">Страна:</dt>
+                                                                    <dd class="col-sm-8 small">Малайзия</dd>
+                                                                    <dt class="col-sm-4 small">Материал:</dt>
+                                                                    <dd class="col-sm-8 small">Пластик</dd>
+                                                                    <dt class="col-sm-4 small">Категория:</dt>
+                                                                    <dd class="col-sm-8 small">Расходные материалы</dd>
+                                                                </dl>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                        </tr>
+
+                                        <!-- Платки для коффердама Sanctuary -->
+                                        <tr class="product-row" data-product-id="3" data-product-name="Платки для коффердама Sanctuary" data-brand="Sanctuary" data-country="Малайзия" data-category="Изоляция полости рта" data-material="Латекс">
+                                            <td>
+                                                <button class="btn btn-link btn-sm p-0 text-primary" data-bs-toggle="collapse" data-bs-target="#details3">
+                                                    <i class="bi bi-chevron-right expand-icon"></i>
+                                                </button>
+                                            </td>
+                                            <td>
+                                                <div class="d-flex align-items-center">
+                                                    <div class="avatar-sm bg-success bg-opacity-10 rounded-circle d-flex align-items-center justify-content-center me-3">
+                                                        <i class="bi bi-square text-success"></i>
+                                                    </div>
+                                                    <div>
+                                                        <h6 class="mb-0">Платки для коффердама Sanctuary</h6>
+                                                        <small class="text-muted">Латекс, 152x152мм, 36шт</small>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <td class="text-center">
+                                                <button class="btn btn-success btn-sm rounded-pill">
+                                                    <i class="bi bi-plus-lg"></i>
+                                                </button>
+                                            </td>
+                                            <td class="text-center">
+                                                <i class="bi bi-info-circle text-info" data-bs-toggle="tooltip" data-bs-html="true"
+                                                   title="<strong>Категория:</strong> Изоляция полости рта<br><strong>Бренд:</strong> Sanctuary<br><strong>Страна:</strong> Малайзия" style="cursor: help;"></i>
+                                            </td>
+                                        </tr>
+                                        <tr class="collapse" id="details3">
+                                            <td colspan="4" class="border-0 pt-0">
+                                                <div class="card border-0 bg-light">
+                                                    <div class="card-body">
+                                                        <div class="row">
+                                                            <div class="col-md-6">
+                                                                <dl class="row mb-0">
+                                                                    <dt class="col-sm-4 small">ID:</dt>
+                                                                    <dd class="col-sm-8 small">3</dd>
+                                                                    <dt class="col-sm-4 small">Название:</dt>
+                                                                    <dd class="col-sm-8 small">Sanctuary Dental Dam Latex</dd>
+                                                                    <dt class="col-sm-4 small">Размер:</dt>
+                                                                    <dd class="col-sm-8 small">152x152мм</dd>
+                                                                    <dt class="col-sm-4 small">Упаковка:</dt>
+                                                                    <dd class="col-sm-8 small">36 листов</dd>
+                                                                </dl>
+                                                            </div>
+                                                            <div class="col-md-6">
+                                                                <dl class="row mb-0">
+                                                                    <dt class="col-sm-4 small">Бренд:</dt>
+                                                                    <dd class="col-sm-8 small"><span class="badge bg-success bg-opacity-10 text-success">Sanctuary</span></dd>
+                                                                    <dt class="col-sm-4 small">Страна:</dt>
+                                                                    <dd class="col-sm-8 small">Малайзия</dd>
+                                                                    <dt class="col-sm-4 small">Материал:</dt>
+                                                                    <dd class="col-sm-8 small">Латекс (цис-1,4-полиизопрен)</dd>
+                                                                    <dt class="col-sm-4 small">Категория:</dt>
+                                                                    <dd class="col-sm-8 small">Изоляция полости рта</dd>
+                                                                </dl>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                        </tr>
+
+                                        <!-- Платки для коффердама Hygenic -->
+                                        <tr class="product-row" data-product-id="4" data-product-name="Платки для коффердама Hygenic" data-brand="Hygenic" data-country="США" data-category="Изоляция полости рта" data-material="Латекс">
+                                            <td>
+                                                <button class="btn btn-link btn-sm p-0 text-primary" data-bs-toggle="collapse" data-bs-target="#details4">
+                                                    <i class="bi bi-chevron-right expand-icon"></i>
+                                                </button>
+                                            </td>
+                                            <td>
+                                                <div class="d-flex align-items-center">
+                                                    <div class="avatar-sm bg-info bg-opacity-10 rounded-circle d-flex align-items-center justify-content-center me-3">
+                                                        <i class="bi bi-square text-info"></i>
+                                                    </div>
+                                                    <div>
+                                                        <h6 class="mb-0">Платки для коффердама Hygenic</h6>
+                                                        <small class="text-muted">Латекс, 152x152мм, 36шт</small>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <td class="text-center">
+                                                <button class="btn btn-success btn-sm rounded-pill">
+                                                    <i class="bi bi-plus-lg"></i>
+                                                </button>
+                                            </td>
+                                            <td class="text-center">
+                                                <i class="bi bi-info-circle text-info" data-bs-toggle="tooltip" data-bs-html="true"
+                                                   title="<strong>Категория:</strong> Изоляция полости рта<br><strong>Бренд:</strong> Hygenic<br><strong>Страна:</strong> США" style="cursor: help;"></i>
+                                            </td>
+                                        </tr>
+                                        <tr class="collapse" id="details4">
+                                            <td colspan="4" class="border-0 pt-0">
+                                                <div class="card border-0 bg-light">
+                                                    <div class="card-body">
+                                                        <div class="row">
+                                                            <div class="col-md-6">
+                                                                <dl class="row mb-0">
+                                                                    <dt class="col-sm-4 small">ID:</dt>
+                                                                    <dd class="col-sm-8 small">4</dd>
+                                                                    <dt class="col-sm-4 small">Название:</dt>
+                                                                    <dd class="col-sm-8 small">Dental Dam List Hygenic</dd>
+                                                                    <dt class="col-sm-4 small">Размер:</dt>
+                                                                    <dd class="col-sm-8 small">152x152мм</dd>
+                                                                    <dt class="col-sm-4 small">Упаковка:</dt>
+                                                                    <dd class="col-sm-8 small">36 листов</dd>
+                                                                </dl>
+                                                            </div>
+                                                            <div class="col-md-6">
+                                                                <dl class="row mb-0">
+                                                                    <dt class="col-sm-4 small">Бренд:</dt>
+                                                                    <dd class="col-sm-8 small"><span class="badge bg-info bg-opacity-10 text-info">Hygenic</span></dd>
+                                                                    <dt class="col-sm-4 small">Страна:</dt>
+                                                                    <dd class="col-sm-8 small">США</dd>
+                                                                    <dt class="col-sm-4 small">Материал:</dt>
+                                                                    <dd class="col-sm-8 small">Латекс (цис-1,4-полиизопрен)</dd>
+                                                                    <dt class="col-sm-4 small">Категория:</dt>
+                                                                    <dd class="col-sm-8 small">Изоляция полости рта</dd>
+                                                                </dl>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                        </tr>
+
+                                        <!-- Карпульные иглы Spident -->
+                                        <tr class="product-row" data-product-id="5" data-product-name="Карпульные иглы Spident Nop" data-brand="Spident" data-country="Южная Корея" data-category="Анестезия" data-material="Металл">
+                                            <td>
+                                                <button class="btn btn-link btn-sm p-0 text-primary" data-bs-toggle="collapse" data-bs-target="#details5">
+                                                    <i class="bi bi-chevron-right expand-icon"></i>
+                                                </button>
+                                            </td>
+                                            <td>
+                                                <div class="d-flex align-items-center">
+                                                    <div class="avatar-sm bg-danger bg-opacity-10 rounded-circle d-flex align-items-center justify-content-center me-3">
+                                                        <i class="bi bi-eyedropper text-danger"></i>
+                                                    </div>
+                                                    <div>
+                                                        <h6 class="mb-0">Карпульные иглы Spident Nop</h6>
+                                                        <small class="text-muted">30G 0.3x12мм, стерильные, 100шт</small>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <td class="text-center">
+                                                <button class="btn btn-success btn-sm rounded-pill">
+                                                    <i class="bi bi-plus-lg"></i>
+                                                </button>
+                                            </td>
+                                            <td class="text-center">
+                                                <i class="bi bi-info-circle text-info" data-bs-toggle="tooltip" data-bs-html="true"
+                                                   title="<strong>Категория:</strong> Анестезия<br><strong>Бренд:</strong> Spident<br><strong>Страна:</strong> Южная Корея" style="cursor: help;"></i>
+                                            </td>
+                                        </tr>
+                                        <tr class="collapse" id="details5">
+                                            <td colspan="4" class="border-0 pt-0">
+                                                <div class="card border-0 bg-light">
+                                                    <div class="card-body">
+                                                        <div class="row">
+                                                            <div class="col-md-6">
+                                                                <dl class="row mb-0">
+                                                                    <dt class="col-sm-4 small">ID:</dt>
+                                                                    <dd class="col-sm-8 small">5</dd>
+                                                                    <dt class="col-sm-4 small">Название:</dt>
+                                                                    <dd class="col-sm-8 small">Spident Nop</dd>
+                                                                    <dt class="col-sm-4 small">Размеры:</dt>
+                                                                    <dd class="col-sm-8 small">30G 0.3x12мм, 16мм, 21мм, 25мм</dd>
+                                                                    <dt class="col-sm-4 small">Упаковка:</dt>
+                                                                    <dd class="col-sm-8 small">100 шт</dd>
+                                                                </dl>
+                                                            </div>
+                                                            <div class="col-md-6">
+                                                                <dl class="row mb-0">
+                                                                    <dt class="col-sm-4 small">Бренд:</dt>
+                                                                    <dd class="col-sm-8 small"><span class="badge bg-danger bg-opacity-10 text-danger">Spident</span></dd>
+                                                                    <dt class="col-sm-4 small">Страна:</dt>
+                                                                    <dd class="col-sm-8 small">Южная Корея</dd>
+                                                                    <dt class="col-sm-4 small">Особенности:</dt>
+                                                                    <dd class="col-sm-8 small">Стерильные</dd>
+                                                                    <dt class="col-sm-4 small">Категория:</dt>
+                                                                    <dd class="col-sm-8 small">Анестезия</dd>
+                                                                </dl>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                        <!-- Карпульные иглы C-K Ject -->
+                                        <tr class="product-row" data-product-id="6" data-product-name="Карпульные иглы C-K Ject Dental" data-brand="C-K Ject" data-country="Южная Корея" data-category="Анестезия" data-material="Металл">
+                                            <td>
+                                                <button class="btn btn-link btn-sm p-0 text-primary" data-bs-toggle="collapse" data-bs-target="#details6">
+                                                    <i class="bi bi-chevron-right expand-icon"></i>
+                                                </button>
+                                            </td>
+                                            <td>
+                                                <div class="d-flex align-items-center">
+                                                    <div class="avatar-sm bg-secondary bg-opacity-10 rounded-circle d-flex align-items-center justify-content-center me-3">
+                                                        <i class="bi bi-eyedropper text-secondary"></i>
+                                                    </div>
+                                                    <div>
+                                                        <h6 class="mb-0">Карпульные иглы C-K Ject Dental</h6>
+                                                        <small class="text-muted">30G 0.3x16мм, стерильные, 100шт</small>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <td class="text-center">
+                                                <button class="btn btn-success btn-sm rounded-pill">
+                                                    <i class="bi bi-plus-lg"></i>
+                                                </button>
+                                            </td>
+                                            <td class="text-center">
+                                                <i class="bi bi-info-circle text-info" data-bs-toggle="tooltip" data-bs-html="true"
+                                                   title="<strong>Категория:</strong> Анестезия<br><strong>Бренд:</strong> C-K Ject<br><strong>Страна:</strong> Южная Корея" style="cursor: help;"></i>
+                                            </td>
+                                        </tr>
+                                        <tr class="collapse" id="details6">
+                                            <td colspan="4" class="border-0 pt-0">
+                                                <div class="card border-0 bg-light">
+                                                    <div class="card-body">
+                                                        <div class="row">
+                                                            <div class="col-md-6">
+                                                                <dl class="row mb-0">
+                                                                    <dt class="col-sm-4 small">ID:</dt>
+                                                                    <dd class="col-sm-8 small">6</dd>
+                                                                    <dt class="col-sm-4 small">Название:</dt>
+                                                                    <dd class="col-sm-8 small">C-K Ject Dental</dd>
+                                                                    <dt class="col-sm-4 small">Размеры:</dt>
+                                                                    <dd class="col-sm-8 small">30G 0.3x12мм, 16мм, 21мм, 25мм</dd>
+                                                                    <dt class="col-sm-4 small">Упаковка:</dt>
+                                                                    <dd class="col-sm-8 small">100 шт</dd>
+                                                                </dl>
+                                                            </div>
+                                                            <div class="col-md-6">
+                                                                <dl class="row mb-0">
+                                                                    <dt class="col-sm-4 small">Бренд:</dt>
+                                                                    <dd class="col-sm-8 small"><span class="badge bg-secondary bg-opacity-10 text-secondary">C-K Ject</span></dd>
+                                                                    <dt class="col-sm-4 small">Страна:</dt>
+                                                                    <dd class="col-sm-8 small">Южная Корея</dd>
+                                                                    <dt class="col-sm-4 small">Особенности:</dt>
+                                                                    <dd class="col-sm-8 small">Стерильные</dd>
+                                                                    <dt class="col-sm-4 small">Категория:</dt>
+                                                                    <dd class="col-sm-8 small">Анестезия</dd>
+                                                                </dl>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                        </tr>
+
+                                        <!-- Импланты Mega'gen -->
+                                        <tr class="product-row" data-product-id="7" data-product-name="Импланты Mega'gen AnyOne" data-brand="Mega'gen" data-country="Южная Корея" data-category="Имплантология" data-material="Титан">
+                                            <td>
+                                                <button class="btn btn-link btn-sm p-0 text-primary" data-bs-toggle="collapse" data-bs-target="#details7">
+                                                    <i class="bi bi-chevron-right expand-icon"></i>
+                                                </button>
+                                            </td>
+                                            <td>
+                                                <div class="d-flex align-items-center">
+                                                    <div class="avatar-sm bg-dark bg-opacity-10 rounded-circle d-flex align-items-center justify-content-center me-3">
+                                                        <i class="bi bi-gear text-dark"></i>
+                                                    </div>
+                                                    <div>
+                                                        <h6 class="mb-0">Импланты Mega'gen AnyOne</h6>
+                                                        <small class="text-muted">Титан, Xpeed, IF 4010C</small>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <td class="text-center">
+                                                <button class="btn btn-success btn-sm rounded-pill">
+                                                    <i class="bi bi-plus-lg"></i>
+                                                </button>
+                                            </td>
+                                            <td class="text-center">
+                                                <i class="bi bi-info-circle text-info" data-bs-toggle="tooltip" data-bs-html="true"
+                                                   title="<strong>Категория:</strong> Имплантология<br><strong>Бренд:</strong> Mega'gen<br><strong>Страна:</strong> Южная Корея" style="cursor: help;"></i>
+                                            </td>
+                                        </tr>
+                                        <tr class="collapse" id="details7">
+                                            <td colspan="4" class="border-0 pt-0">
+                                                <div class="card border-0 bg-light">
+                                                    <div class="card-body">
+                                                        <div class="row">
+                                                            <div class="col-md-6">
+                                                                <dl class="row mb-0">
+                                                                    <dt class="col-sm-4 small">ID:</dt>
+                                                                    <dd class="col-sm-8 small">7</dd>
+                                                                    <dt class="col-sm-4 small">Название:</dt>
+                                                                    <dd class="col-sm-8 small">Mega'gen AnyOne</dd>
+                                                                    <dt class="col-sm-4 small">Покрытие:</dt>
+                                                                    <dd class="col-sm-8 small">Xpeed</dd>
+                                                                    <dt class="col-sm-4 small">Размеры:</dt>
+                                                                    <dd class="col-sm-8 small">IF 3507C, IF 4010C, IF 5007C</dd>
+                                                                </dl>
+                                                            </div>
+                                                            <div class="col-md-6">
+                                                                <dl class="row mb-0">
+                                                                    <dt class="col-sm-4 small">Бренд:</dt>
+                                                                    <dd class="col-sm-8 small"><span class="badge bg-dark bg-opacity-10 text-dark">Mega'gen</span></dd>
+                                                                    <dt class="col-sm-4 small">Страна:</dt>
+                                                                    <dd class="col-sm-8 small">Южная Корея</dd>
+                                                                    <dt class="col-sm-4 small">Материал:</dt>
+                                                                    <dd class="col-sm-8 small">Титан</dd>
+                                                                    <dt class="col-sm-4 small">Серия:</dt>
+                                                                    <dd class="col-sm-8 small">AnyOne, AnyRidge</dd>
+                                                                </dl>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                        </tr>
+
+                                        <!-- Импланты Straumann -->
+                                        <tr class="product-row" data-product-id="8" data-product-name="Импланты Straumann BLX" data-brand="Straumann" data-country="Швейцария" data-category="Имплантология" data-material="Титан">
+                                            <td>
+                                                <button class="btn btn-link btn-sm p-0 text-primary" data-bs-toggle="collapse" data-bs-target="#details8">
+                                                    <i class="bi bi-chevron-right expand-icon"></i>
+                                                </button>
+                                            </td>
+                                            <td>
+                                                <div class="d-flex align-items-center">
+                                                    <div class="avatar-sm bg-primary bg-opacity-10 rounded-circle d-flex align-items-center justify-content-center me-3">
+                                                        <i class="bi bi-gear-fill text-primary"></i>
+                                                    </div>
+                                                    <div>
+                                                        <h6 class="mb-0">Импланты Straumann BLX</h6>
+                                                        <small class="text-muted">Ti-Zr сплав, SLActive, ø4.5x10мм</small>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <td class="text-center">
+                                                <button class="btn btn-success btn-sm rounded-pill">
+                                                    <i class="bi bi-plus-lg"></i>
+                                                </button>
+                                            </td>
+                                            <td class="text-center">
+                                                <i class="bi bi-info-circle text-info" data-bs-toggle="tooltip" data-bs-html="true"
+                                                   title="<strong>Категория:</strong> Имплантология<br><strong>Бренд:</strong> Straumann<br><strong>Страна:</strong> Швейцария" style="cursor: help;"></i>
+                                            </td>
+                                        </tr>
+                                        <tr class="collapse" id="details8">
+                                            <td colspan="4" class="border-0 pt-0">
+                                                <div class="card border-0 bg-light">
+                                                    <div class="card-body">
+                                                        <div class="row">
+                                                            <div class="col-md-6">
+                                                                <dl class="row mb-0">
+                                                                    <dt class="col-sm-4 small">ID:</dt>
+                                                                    <dd class="col-sm-8 small">8</dd>
+                                                                    <dt class="col-sm-4 small">Название:</dt>
+                                                                    <dd class="col-sm-8 small">Straumann BLX</dd>
+                                                                    <dt class="col-sm-4 small">Покрытие:</dt>
+                                                                    <dd class="col-sm-8 small">SLA / SLActive</dd>
+                                                                    <dt class="col-sm-4 small">Размеры:</dt>
+                                                                    <dd class="col-sm-8 small">6-16мм с шагом 2мм</dd>
+                                                                </dl>
+                                                            </div>
+                                                            <div class="col-md-6">
+                                                                <dl class="row mb-0">
+                                                                    <dt class="col-sm-4 small">Бренд:</dt>
+                                                                    <dd class="col-sm-8 small"><span class="badge bg-primary bg-opacity-10 text-primary">Straumann</span></dd>
+                                                                    <dt class="col-sm-4 small">Страна:</dt>
+                                                                    <dd class="col-sm-8 small">Швейцария</dd>
+                                                                    <dt class="col-sm-4 small">Материал:</dt>
+                                                                    <dd class="col-sm-8 small">Сплав титана и циркония</dd>
+                                                                    <dt class="col-sm-4 small">Серия:</dt>
+                                                                    <dd class="col-sm-8 small">BLX, Standard Plus, Tissue Level</dd>
+                                                                </dl>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Правая колонка: информационные панели -->
+                <div class="col-lg-6">
+                    <div class="card">
+                        <div class="card-header">
+                            <ul class="nav nav-pills nav-fill mb-3" role="tablist">
+                                <li class="nav-item">
+                                    <button class="nav-link active small" data-bs-toggle="pill" data-bs-target="#novinki">
+                                        <i class="bi bi-star me-1"></i>Новинки
+                                    </button>
+                                </li>
+                                <li class="nav-item">
+                                    <button class="nav-link small" data-bs-toggle="pill" data-bs-target="#prices">
+                                        <i class="bi bi-currency-dollar me-1"></i>Цены
+                                    </button>
+                                </li>
+                                <li class="nav-item">
+                                    <button class="nav-link small" data-bs-toggle="pill" data-bs-target="#analogs">
+                                        <i class="bi bi-arrow-left-right me-1"></i>Аналоги
+                                    </button>
+                                </li>
+                            </ul>
+                        </div>
+                        <div class="card-body">
+                            <div class="tab-content">
+                                <div class="tab-pane fade show active" id="novinki">
+                                    <div class="d-flex flex-column gap-3">
+                                        <div class="card border-0 bg-gradient-primary text-white">
+                                            <div class="card-body p-3">
+                                                <h6 class="card-title text-white mb-1">🔥 Акция недели</h6>
+                                                <p class="card-text small mb-0">Скидки до 25% на расходные материалы</p>
+                                            </div>
+                                        </div>
+                                        <div class="card border-0 bg-light">
+                                            <div class="card-body p-3">
+                                                <h6 class="card-title mb-1">💊 Новые поступления</h6>
+                                                <p class="card-text small text-muted mb-0">Импланты Straumann в наличии</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="tab-pane fade" id="prices">
+                                    <div class="mb-3">
+                                        <div class="row g-2">
+                                            <div class="col-6">
+                                                <select id="priceSupplierFilter" class="form-select form-select-sm">
+                                                    <option value="">Поставщик</option>
+                                                </select>
+                                            </div>
+                                            <div class="col-6">
+                                                <select id="priceCityFilter" class="form-select form-select-sm">
+                                                    <option value="">Город</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="table-responsive">
+                                        <table class="table table-sm" id="pricesTable">
+                                            <thead class="table-light">
+                                                <tr>
+                                                    <th class="small">Поставщик</th>
+                                                    <th class="small">Город</th>
+                                                    <th class="small">Цена</th>
+                                                    <th class="small">Остатки</th>
+                                                    <th class="small">Скидка</th>
+                                                    <th class="small">Цена со скидкой</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody></tbody>
+                                        </table>
+                                    </div>
+                                    <!-- 🟨 Рекламный блок по выбранному товару -->
+                                    <div class="card border-0 shadow-sm rounded-4"
+                                         style="background: linear-gradient(135deg, #007bff, #6610f2); color: #fff;">
+                                       @*  <div class="card-body text-center p-4">
+                                            <i class="bi bi-megaphone fs-1 mb-2 d-block opacity-75"></i>
+                                            <h5 class="fw-bold mb-1 text-white">Здесь могла бы быть реклама вашего товара</h5>
+                                            <p class="small mb-3 text-light opacity-75">
+                                                Рекомендуемые предложения и скидки по выбранному продукту появятся здесь.
+                                            </p>
+                                            <button class="btn btn-light btn-sm px-3">
+                                                <i class="bi bi-lightning-charge text-primary"></i> Узнать подробнее
+                                            </button>
+                                        </div> *@
+                                        <img width="100%" src="/img/2.jpg" />
+                                    </div>
+                                </div>
+
+                                <div class="tab-pane fade" id="analogs">
+                                    <div class="alert alert-info">
+                                        <i class="bi bi-info-circle me-2"></i>
+                                        <small>Выберите товар для просмотра аналогов</small>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                </div>
+                
+            </div>
+        </section>
+
+        <section class="section">
+            <div class="row">
+                <div class="col-12">
+                    <div class="card">
+                        <div class="card-header d-flex justify-content-between align-items-center">
+                            <h5 class="card-title mb-0">
+                                <i class="bi bi-bag-check me-2"></i>Активные заказы
+                            </h5>
+                            <div class="d-flex gap-2 align-items-center">
+                                <span class="badge bg-primary fs-6" id="orderCount">0 товаров</span>
+                                <span class="badge bg-success fs-6" id="totalAmount">0 ₸</span>
+                                <button class="btn btn-outline-danger btn-sm" id="clearOrders">
+                                    <i class="bi bi-trash3"></i> Очистить
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="card-body">
+                            <div id="emptyOrdersMessage" class="text-center py-5">
+                                <div class="mb-4">
+                                    <i class="bi bi-cart3 display-1 text-muted"></i>
+                                </div>
+                                <h5 class="text-muted">Корзина пуста</h5>
+                                <p class="text-muted mb-0">Добавьте товары из каталога для формирования заказа</p>
+                            </div>
+
+                            <div id="ordersTableContainer" style="display: none;">
+                                <div id="supplierOrderGroups">
+                                    <!-- Группы заказов будут добавлены здесь -->
+                                </div>
+                            </div>
+
+                            <div class="row mt-4" id="orderActions" style="display: none;">
+                                <div class="col-md-6">
+                                    <div class="card bg-light border-0">
+                                        <div class="card-body">
+                                            <h6 class="card-title">📊 Итого по заказу</h6>
+                                            <div class="row">
+                                                <div class="col-6">
+                                                    <div class="d-flex justify-content-between">
+                                                        <span class="small">Товаров:</span>
+                                                        <span class="small fw-bold" id="summaryCount">0</span>
+                                                    </div>
+                                                </div>
+                                                <div class="col-6">
+                                                    <div class="d-flex justify-content-between">
+                                                        <span class="small">Сумма:</span>
+                                                        <span class="small fw-bold text-success" id="summaryTotal">0 ₸</span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Модальное окно деталей поставщика -->
+        <div class="modal fade" id="supplierModal" tabindex="-1">
+            <div class="modal-dialog modal-md">
+                <!-- уменьшено с modal-lg до modal-md -->
+                <div class="modal-content shadow-lg rounded-4 border-0">
+                    <div class="modal-header bg-light">
+                        <h5 class="modal-title fw-bold fs-4">
+                            <i class="bi bi-shop me-2 text-primary"></i>Детали поставки
+                        </h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+
+                    <div class="modal-body fs-5">
+                        <!-- увеличен шрифт -->
+                        <div class="row g-3">
+                            <input style="display:none" type="text" id="modalSupplier" class="form-control" readonly>
+                            <input style="display:none" type="text" id="modalExp" class="form-control" readonly>
+                            <div class="col-md-6">
+                                <label class="form-label fw-semibold small">Остаток на складе</label>
+                                <input type="text" id="modalStock" class="form-control form-control-lg" readonly>
+                            </div>
+
+                            <div class="col-md-6">
+                                <label class="form-label fw-semibold small">Базовая цена</label>
+                                <input type="text" id="modalPrice" class="form-control form-control-lg" readonly>
+                            </div>
+
+                            <div class="col-md-6">
+                                <label class="form-label fw-semibold small">Скидка</label>
+                                <input type="text" id="modalDiscount" class="form-control form-control-lg" readonly>
+                            </div>
+
+                            <div class="col-md-6">
+                                <label class="form-label fw-semibold small">Цена со скидкой</label>
+                                <input type="text" id="modalPriceDiscount" class="form-control form-control-lg bg-success bg-opacity-10 fw-bold text-success" readonly>
+                            </div>
+
+                            <div class="col-md-6">
+                                <label class="form-label fw-semibold small">Кратность упаковки</label>
+                                <input type="text" id="modalMult" class="form-control form-control-lg" readonly>
+                            </div>
+
+                            <div class="col-md-6">
+                                <label class="form-label fw-semibold small">Количество</label>
+                                <div class="input-group input-group-lg">
+                                    <button class="btn btn-outline-secondary" type="button" onclick="changeModalQuantity(-1)">
+                                        <i class="bi bi-dash fs-5"></i>
+                                    </button>
+                                    <input type="number" id="modalQuantity" class="form-control text-center fs-5" min="1" value="1">
+                                    <button class="btn btn-outline-secondary" type="button" onclick="changeModalQuantity(1)">
+                                        <i class="bi bi-plus fs-5"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="mt-4">
+                            <button class="btn btn-link text-decoration-none p-0 fs-6" data-bs-toggle="collapse" data-bs-target="#promoDesc">
+                                <i class="bi bi-info-circle me-1"></i>Подробности акции
+                            </button>
+                            <div class="collapse mt-2" id="promoDesc">
+                                <div class="alert alert-info mb-0 fs-6">
+                                    <small>Действует специальная цена при покупке от 10 единиц. Акция действительна до конца месяца.</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary btn-lg" data-bs-dismiss="modal">Закрыть</button>
+                        <button type="button" class="btn btn-primary btn-lg" id="addToOrderBtn">Добавить в заказ</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Массив для хранения активных заказов
+        let activeOrders = [];
+        let currentProductData = {};
+
+        document.addEventListener('DOMContentLoaded', function () {
+            // Инициализация тултипов
+            var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+            tooltipTriggerList.forEach(function (el) { new bootstrap.Tooltip(el); });
+
+            // Обработчик клика на строках товаров
+            document.querySelectorAll('.product-row').forEach(function (row) {
+                row.addEventListener('click', function () {
+                    new bootstrap.Tab(document.querySelector('[data-bs-target="#prices"]')).show();
+                    loadPrices(this.dataset.productId);
+                });
+            });
+
+            // Обработчики фильтров
+            document.getElementById('searchInput').addEventListener('input', filterProducts);
+            document.getElementById('cityFilter').addEventListener('change', filterProducts);
+            document.getElementById('supplierFilter').addEventListener('change', filterProducts);
+            document.getElementById('categoryFilter').addEventListener('change', filterProducts);
+            document.getElementById('brandFilter').addEventListener('change', filterProducts);
+            document.getElementById('countryFilter').addEventListener('change', filterProducts);
+            document.getElementById('materialFilter').addEventListener('change', filterProducts);
+
+            // Обработчик добавления в заказ
+            document.getElementById('addToOrderBtn').addEventListener('click', function () {
+                addToOrder();
+            });
+
+            // Обработчик очистки всех заказов
+            document.getElementById('clearOrders').addEventListener('click', function () {
+                if (confirm('Вы уверены, что хотите очистить все заказы?')) {
+                    activeOrders = [];
+                    updateOrdersDisplay();
+                }
+            });
+
+            // Обработчик раскрытия деталей товара
+            document.querySelectorAll('[data-bs-toggle="collapse"]').forEach(function (button) {
+                button.addEventListener('click', function () {
+                    const icon = this.querySelector('.expand-icon');
+                    if (icon) {
+                        icon.classList.toggle('rotated');
+                    }
+                });
+            });
+        });
+        function loadPrices(productId) {
+            const productRow = document.querySelector(`[data-product-id="${productId}"]`);
+            currentProductData.productId = productId;
+            currentProductData.productName = productRow.dataset.productName;
+
+            var tbody = document.querySelector('#pricesTable tbody');
+            tbody.innerHTML = '';
+
+            // Данные по поставщикам для разных товаров
+            let sampleData = [];
+
+            if (productId === '1') { // Слюноотсосы Euronda
+                sampleData = [
+                    { supplier: 'ТОО "ДентМед КЗ"', city: 'Алматы', price: '3600 ₸', stock: 75, exp: '2027-04-10', markup: '18%', date: '2025-05-29', discount: '7%', priceDiscount: '3348 ₸', mult: '8' }
+                ];
+            } else if (productId === '3') { // Платки для коффердама Sanctuary
+                sampleData = [
+                    { supplier: 'ТОО "ДентМед КЗ"', city: 'Алматы', price: '8500 ₸', stock: 45, exp: '2026-11-30', markup: '22%', date: '2025-05-28', discount: '10%', priceDiscount: '7650 ₸', mult: '3' },
+                    { supplier: 'ТОО "Профи-Дент"', city: 'Астана', price: '9200 ₸', stock: 32, exp: '2027-02-15', markup: '25%', date: '2025-05-26', discount: '12%', priceDiscount: '8096 ₸', mult: '2' },
+                    { supplier: 'ТОО "Стом-Снаб"', city: 'Караганда', price: '8800 ₸', stock: 28, exp: '2026-10-25', markup: '20%', date: '2025-05-29', discount: '7%', priceDiscount: '8184 ₸', mult: '4' }
+                ];
+            } else if (productId === '4') { // Платки для коффердама Hygenic
+                sampleData = [
+                    { supplier: 'ТОО "Профи-Дент"', city: 'Астана', price: '9800 ₸', stock: 38, exp: '2027-03-20', markup: '28%', date: '2025-05-27', discount: '15%', priceDiscount: '8330 ₸', mult: '2' },
+                    { supplier: 'ТОО "МедИмпорт КЗ"', city: 'Шымкент', price: '10200 ₸', stock: 25, exp: '2027-01-15', markup: '30%', date: '2025-05-28', discount: '10%', priceDiscount: '9180 ₸', mult: '3' },
+                    { supplier: 'ТОО "ДентМед КЗ"', city: 'Алматы', price: '9500 ₸', stock: 42, exp: '2026-12-30', markup: '25%', date: '2025-05-29', discount: '8%', priceDiscount: '8740 ₸', mult: '4' }
+                ];
+            } else if (productId === '5') { // Карпульные иглы Spident
+                sampleData = [
+                    { supplier: 'ТОО "ДентТехно"', city: 'Алматы', price: '12500 ₸', stock: 75, exp: '2027-06-30', markup: '28%', date: '2025-05-27', discount: '15%', priceDiscount: '10625 ₸', mult: '2' },
+                    { supplier: 'ТОО "Корея-Дент"', city: 'Астана', price: '11800 ₸', stock: 95, exp: '2027-04-20', markup: '25%', date: '2025-05-28', discount: '8%', priceDiscount: '10856 ₸', mult: '3' },
+                    { supplier: 'ТОО "МедИмпорт КЗ"', city: 'Шымкент', price: '13200 ₸', stock: 60, exp: '2027-08-10', markup: '30%', date: '2025-05-29', discount: '12%', priceDiscount: '11616 ₸', mult: '1' }
+                ];
+            } else if (productId === '6') { // Карпульные иглы C-K Ject
+                sampleData = [
+                    { supplier: 'ТОО "Корея-Дент"', city: 'Астана', price: '11200 ₸', stock: 110, exp: '2027-05-15', markup: '22%', date: '2025-05-27', discount: '10%', priceDiscount: '10080 ₸', mult: '3' },
+                    { supplier: 'ТОО "ДентТехно"', city: 'Алматы', price: '12000 ₸', stock: 85, exp: '2027-07-20', markup: '25%', date: '2025-05-28', discount: '12%', priceDiscount: '10560 ₸', mult: '2' },
+                    { supplier: 'ТОО "МедИмпорт КЗ"', city: 'Шымкент', price: '11800 ₸', stock: 70, exp: '2027-06-05', markup: '28%', date: '2025-05-29', discount: '8%', priceDiscount: '10856 ₸', mult: '4' }
+                ];
+            } else if (productId === '7') { // Импланты Mega'gen
+                sampleData = [
+                    { supplier: 'ТОО "Имплант Центр КЗ"', city: 'Алматы', price: '45000 ₸', stock: 25, exp: '2030-12-31', markup: '35%', date: '2025-05-28', discount: '5%', priceDiscount: '42750 ₸', mult: '1' },
+                    { supplier: 'ТОО "Корея Имплант"', city: 'Астана', price: '48500 ₸', stock: 18, exp: '2030-11-15', markup: '40%', date: '2025-05-27', discount: '8%', priceDiscount: '44620 ₸', mult: '1' },
+                    { supplier: 'ТОО "ДентИмплант Плюс"', city: 'Шымкент', price: '46800 ₸', stock: 22, exp: '2030-10-30', markup: '38%', date: '2025-05-29', discount: '3%', priceDiscount: '45396 ₸', mult: '1' }
+                ];
+            } else if (productId === '8') { // Импланты Straumann
+                sampleData = [
+                    { supplier: 'ТОО "Премиум Дент"', city: 'Алматы', price: '85000 ₸', stock: 15, exp: '2032-12-31', markup: '45%', date: '2025-05-28', discount: '10%', priceDiscount: '76500 ₸', mult: '1' },
+                    { supplier: 'ТОО "Швейцария Дент КЗ"', city: 'Астана', price: '82000 ₸', stock: 12, exp: '2032-11-20', markup: '42%', date: '2025-05-27', discount: '7%', priceDiscount: '76260 ₸', mult: '1' },
+                    { supplier: 'ТОО "Элит Имплант"', city: 'Караганда', price: '88500 ₸', stock: 10, exp: '2032-10-15', markup: '48%', date: '2025-05-29', discount: '12%', priceDiscount: '77880 ₸', mult: '1' }
+                ];
+            }
+
+            sampleData.forEach(function (item) {
+                var tr = document.createElement('tr');
+                // Поставщик с кликом
+                var tdSup = document.createElement('td');
+                tdSup.textContent = item.supplier;
+                tdSup.style.cursor = 'pointer';
+                tdSup.addEventListener('click', function () {
+                    document.getElementById('modalSupplier').value = item.supplier;
+                    document.getElementById('modalStock').value = item.stock;
+                    document.getElementById('modalExp').value = item.exp;
+                    document.getElementById('modalPrice').value = item.price;
+                    document.getElementById('modalDiscount').value = item.discount;
+                    document.getElementById('modalPriceDiscount').value = item.priceDiscount;
+                    document.getElementById('modalMult').value = item.mult;
+                    document.getElementById('modalQuantity').value = 1;
+
+                    // Сохраняем данные для добавления в заказ
+                    currentProductData.supplier = item.supplier;
+                    currentProductData.city = item.city;
+                    currentProductData.price = item.price;
+                    currentProductData.priceDiscount = item.priceDiscount;
+                    currentProductData.exp = item.exp;
+                    currentProductData.stock = item.stock;
+                    currentProductData.mult = item.mult;
+                    currentProductData.discount = item.discount;
+                    currentProductData.priceDiscount = item.priceDiscount;
+                    new bootstrap.Modal(document.getElementById('supplierModal')).show();
+                });
+                tr.appendChild(tdSup);
+                ['city', 'price', 'stock', 'discount', 'priceDiscount'].forEach(function (key) {
+                    var td = document.createElement('td');
+                    td.textContent = item[key];
+                    tr.appendChild(td);
+                });
+                tbody.appendChild(tr);
+            });
+        }
+
+        function addToOrder() {
+            const quantity = parseInt(document.getElementById('modalQuantity').value) || 1;
+            const priceText = currentProductData.priceDiscount || currentProductData.price;
+            const price = parseFloat(priceText.replace(/[^\d]/g, ''));
+
+            const orderItem = {
+                id: Date.now(),
+                productId: currentProductData.productId,
+                productName: currentProductData.productName,
+                supplier: currentProductData.supplier,
+                city: currentProductData.city,
+                price: price,
+                priceText: priceText,
+                quantity: quantity,
+                total: price * quantity,
+                exp: currentProductData.exp,
+                stock: currentProductData.stock,
+                discount : currentProductData.discount,
+
+                dateAdded: new Date().toLocaleString('ru-RU')
+            };
+
+            activeOrders.push(orderItem);
+            updateOrdersDisplay();
+
+            bootstrap.Modal.getInstance(document.getElementById('supplierModal')).hide();
+            showNotification('Товар добавлен в заказ!', 'success');
+        }
+
+        function updateOrdersDisplay() {
+            const container = document.getElementById('supplierOrderGroups');
+            const emptyMessage = document.getElementById('emptyOrdersMessage');
+            const tableContainer = document.getElementById('ordersTableContainer');
+            const orderActions = document.getElementById('orderActions');
+
+            container.innerHTML = '';
+
+            if (activeOrders.length === 0) {
+                emptyMessage.style.display = 'block';
+                tableContainer.style.display = 'none';
+                orderActions.style.display = 'none';
+            } else {
+                emptyMessage.style.display = 'none';
+                tableContainer.style.display = 'block';
+                orderActions.style.display = 'flex';
+
+                const groupedOrders = activeOrders.reduce((groups, order) => {
+                    const supplier = order.supplier;
+                    if (!groups[supplier]) {
+                        groups[supplier] = [];
+                    }
+                    groups[supplier].push(order);
+                    return groups;
+                }, {});
+
+                Object.keys(groupedOrders).forEach(supplier => {
+                    const supplierOrders = groupedOrders[supplier];
+                    const supplierTotal = supplierOrders.reduce((sum, order) => sum + order.total, 0);
+                    const supplierItemCount = supplierOrders.reduce((sum, order) => sum + order.quantity, 0);
+
+                    const supplierBlock = document.createElement('div');
+                    supplierBlock.className = 'card mb-3';
+                    supplierBlock.innerHTML = `
+                                    <div class="card border-0 shadow-sm mb-4">
+          <!-- 🔹 Заголовок поставщика -->
+          <div class="card-header bg-light py-3">
+            <div class="d-flex justify-content-between align-items-center flex-wrap">
+              <h6 class="mb-2 mb-md-0 fw-bold text-primary d-flex align-items-center gap-2">
+                <i class="bi bi-building"></i> ${supplier}
+              </h6>
+              <div class="d-flex align-items-center gap-2">
+                <span class="badge bg-primary-subtle text-primary px-3 py-2 shadow-sm">
+                  ${supplierItemCount} шт.
+                </span>
+                <span class="badge bg-success-subtle text-success px-3 py-2 shadow-sm">
+                  ${supplierTotal.toLocaleString()} ₸
+                </span>
+                <button class="btn btn-outline-danger btn-sm rounded-circle shadow-sm"
+                        title="Удалить все заказы поставщика"
+                        onclick="removeSupplierOrders('${supplier}')">
+                  <i class="bi bi-trash"></i>
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- 🔹 Таблица товаров -->
+          <div class="card-body p-0">
+            <div class="table-responsive">
+              <table class="table table-hover align-middle mb-0">
+                <thead class="table-light">
+                  <tr class="text-secondary small">
+                    <th>Товар</th>
+                    <th class="text-center">Цена за ед.</th>
+                    <th class="text-center">Количество</th>
+                    <th class="text-center">Скидка</th>
+                    <th class="text-center">Сумма</th>
+                    <th class="text-center">Дата добавления</th>
+                    <th class="text-center"></th>
+                  </tr>
+                </thead>
+                <tbody>
+                  ${supplierOrders.map(order => `
+                    <tr>
+                      <td>
+                        <div class="fw-semibold">${order.productName}</div>
+                        <small class="text-muted">${order.city}</small>
+                      </td>
+                      <td class="text-center">${order.priceText}</td>
+                      <td class="text-center">
+                        <div class="input-group input-group-sm mx-auto" style="width: 130px;">
+                          <button class="btn btn-outline-secondary" type="button" onclick="changeQuantity(${order.id}, -1)">
+                            <i class="bi bi-dash"></i>
+                          </button>
+                          <input type="text" class="form-control text-center fw-semibold" value="${order.quantity}" readonly>
+                          <button class="btn btn-outline-secondary" type="button" onclick="changeQuantity(${order.id}, 1)">
+                            <i class="bi bi-plus"></i>
+                          </button>
+                        </div>
+                      </td>
+                                       <td class="text-center">
+                                <small class="text-muted">${order.discount}</small>
+                              </td>
+                      <td class="text-center fw-bold text-success">${order.total.toLocaleString()} ₸</td>
+                      <td class="text-center">
+                        <small class="text-muted">${order.dateAdded}</small>
+                      </td>
+                      <td class="text-center">
+                        <button class="btn btn-outline-danger btn-sm rounded-circle shadow-sm"
+                                title="Удалить товар"
+                                onclick="removeFromOrder(${order.id})">
+                          <i class="bi bi-trash"></i>
+                        </button>
+                      </td>
+                    </tr>
+                  `).join('')}
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- 🔹 Нижняя панель с кнопками -->
+          <div class="card-footer bg-white border-top-0 d-flex justify-content-end gap-2 py-3">
+            <button class="btn btn-outline-primary d-flex align-items-center gap-2 shadow-sm">
+              <i class="bi bi-download"></i> Экспорт
+            </button>
+            <button class="btn btn-primary d-flex align-items-center gap-2 shadow-sm">
+              <i class="bi bi-check2-circle"></i> Оформить заказ
+            </button>
+          </div>
+        </div>
+                          `;
+                    container.appendChild(supplierBlock);
+                });
+            }
+
+            updateOrderSummary();
+        }
+
+        function updateOrderSummary() {
+            const totalItems = activeOrders.reduce((sum, order) => sum + order.quantity, 0);
+            const totalAmount = activeOrders.reduce((sum, order) => sum + order.total, 0);
+
+            document.getElementById('orderCount').textContent = `${totalItems} товаров`;
+            document.getElementById('totalAmount').textContent = `${totalAmount.toLocaleString()} ₸`;
+            document.getElementById('summaryCount').textContent = totalItems;
+            document.getElementById('summaryTotal').textContent = `${totalAmount.toLocaleString()} ₸`;
+        }
+
+        function changeQuantity(orderId, change) {
+            const order = activeOrders.find(o => o.id === orderId);
+            if (order) {
+                const newQuantity = order.quantity + change;
+                if (newQuantity > 0 && newQuantity <= order.stock) {
+                    order.quantity = newQuantity;
+                    order.total = order.price * order.quantity;
+                    updateOrdersDisplay();
+                }
+            }
+        }
+
+        function removeFromOrder(orderId) {
+            activeOrders = activeOrders.filter(o => o.id !== orderId);
+            updateOrdersDisplay();
+            showNotification('Товар удален из заказа', 'warning');
+        }
+
+        function removeSupplierOrders(supplier) {
+            if (confirm(`Удалить все товары от поставщика "${supplier}"?`)) {
+                activeOrders = activeOrders.filter(o => o.supplier !== supplier);
+                updateOrdersDisplay();
+                showNotification(`Все товары от поставщика "${supplier}" удалены`, 'warning');
+            }
+        }
+
+        function changeModalQuantity(change) {
+            const input = document.getElementById('modalQuantity');
+            const newValue = parseInt(input.value) + change;
+            if (newValue >= 1) {
+                input.value = newValue;
+            }
+        }
+
+        function showNotification(message, type = 'info') {
+            const alertClass = type === 'success' ? 'alert-success' :
+                type === 'warning' ? 'alert-warning' : 'alert-info';
+
+            const alert = document.createElement('div');
+            alert.className = `alert ${alertClass} alert-dismissible fade show position-fixed`;
+            alert.style.cssText = 'top: 20px; right: 20px; z-index: 9999; min-width: 300px;';
+            alert.innerHTML = `
+                        ${message}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                      `;
+
+            document.body.appendChild(alert);
+
+            setTimeout(() => {
+                if (alert.parentNode) {
+                    alert.parentNode.removeChild(alert);
+                }
+            }, 3000);
+        }
+
+        function filterProducts() {
+            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+            const categoryFilter = document.getElementById('categoryFilter').value;
+            const brandFilter = document.getElementById('brandFilter').value;
+            const countryFilter = document.getElementById('countryFilter').value;
+            const materialFilter = document.getElementById('materialFilter').value;
+
+            const productRows = document.querySelectorAll('.product-row');
+
+            productRows.forEach(function (row) {
+                const productName = row.dataset.productName.toLowerCase();
+                const category = row.dataset.category || '';
+                const brand = row.dataset.brand || '';
+                const country = row.dataset.country || '';
+                const material = row.dataset.material || '';
+                const nextRow = row.nextElementSibling;
+
+                let shouldShow = true;
+
+                if (searchTerm && !productName.includes(searchTerm)) {
+                    shouldShow = false;
+                }
+
+                if (categoryFilter && category !== categoryFilter) shouldShow = false;
+                if (brandFilter && brand !== brandFilter) shouldShow = false;
+                if (countryFilter && country !== countryFilter) shouldShow = false;
+                if (materialFilter && material !== materialFilter) shouldShow = false;
+
+                if (shouldShow) {
+                    row.style.display = '';
+                    if (nextRow && nextRow.classList.contains('collapse')) {
+                        nextRow.style.display = '';
+                    }
+                } else {
+                    row.style.display = 'none';
+                    if (nextRow && nextRow.classList.contains('collapse')) {
+                        nextRow.style.display = 'none';
+                    }
+                }
+            });
+        }
+    </script>
+</body>
+</html>

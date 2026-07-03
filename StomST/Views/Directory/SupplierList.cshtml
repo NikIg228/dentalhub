@@ -1,0 +1,217 @@
+﻿@using StomST.Models
+@model List<SupplierModel>
+
+<section class="section">
+    <div class="row">
+        <div class="col-lg-6">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Поставщики</h5>
+
+                    <!-- Поиск поставщиков -->
+                    <div class="mb-3">
+                        <input type="text"
+                               id="supplierSearch"
+                               class="form-control"
+                               placeholder="Поиск поставщиков..." />
+                    </div>
+
+                    <!-- Таблица поставщиков -->
+                    <table class="table table-striped table-hover align-middle shadow-sm rounded-3 overflow-hidden">
+                        <thead class="table-light">
+                            <tr>
+                                <th class="text-center" style="width: 80px;">ID</th>
+                                <th>Поставщик</th>
+                                <th class="text-center" style="width: 160px;">Договор</th>
+                                <th class="text-center" style="width: 120px;">Скидка</th>
+                                <th class="text-center" style="width: 140px;">Действия</th>
+                            </tr>
+                        </thead>
+                        <tbody id="suppliersTable">
+                            @foreach (var supplier in Model)
+                            {
+                                <tr>
+                                    <td class="text-center fw-semibold">@supplier.SupplierId</td>
+                                    <td>@supplier.SupplierName</td>
+
+                                    <td class="text-center">
+                                        @if (supplier.IsContractSigned)
+                                        {
+                                            <span class="badge bg-success-subtle text-success border border-success-subtle px-3 py-2">
+                                                <i class="bi bi-check-circle-fill me-1"></i> Подписан
+                                            </span>
+                                        }
+                                        else
+                                        {
+                                            <button type="button"
+                                                    class="btn btn-outline-success btn-sm d-inline-flex align-items-center gap-1">
+                                                <i class="bi bi-pen"></i> Подписать ЭЦП
+                                            </button>
+                                        }
+                                    </td>
+
+                                    <td class="text-center">
+                                        @if (supplier.IsDiscount)
+                                        {
+                                            <span class="badge bg-success-subtle text-success border border-success-subtle px-3 py-2">
+                                                Есть
+                                            </span>
+                                        }
+                                        else
+                                        {
+                                            <span class="badge bg-danger-subtle text-danger border border-danger-subtle px-3 py-2">
+                                                Нет
+                                            </span>
+                                        }
+                                    </td>
+
+                                    <td class="text-center">
+                                        <button type="button"
+                                                class="btn btn-outline-primary btn-sm d-inline-flex align-items-center gap-1"
+                                                data-bs-toggle="modal"
+                                                data-bs-target="#branchesModal-@supplier.SupplierId">
+                                            <i class="bi bi-diagram-3"></i> Филиалы
+                                        </button>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+
+                    <!-- Все модалки — вне таблицы -->
+                    @foreach (var supplier in Model)
+                    {
+                        <div class="modal fade"
+                             id="branchesModal-@supplier.SupplierId"
+                             tabindex="-1"
+                             aria-labelledby="branchesModalLabel-@supplier.SupplierId"
+                             aria-hidden="true">
+                            <div class="modal-dialog modal-lg modal-dialog-centered">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h5 class="modal-title"
+                                            id="branchesModalLabel-@supplier.SupplierId">
+                                            Филиалы «@supplier.SupplierName»
+                                        </h5>
+                                        <button type="button"
+                                                class="btn-close"
+                                                data-bs-dismiss="modal"
+                                                aria-label="Закрыть">
+                                        </button>
+                                    </div>
+                                    <div class="modal-body">
+                                        <!-- Поиск филиалов -->
+                                        <div class="mb-3">
+                                            <input type="text"
+                                                   class="form-control branch-search"
+                                                   data-supplier-id="@supplier.SupplierId"
+                                                   placeholder="Поиск филиалов..." />
+                                        </div>
+
+                                        @if (supplier.Subsuppliers?.Any() == true)
+                                        {
+                                            <table class="table table-bordered table-hover align-middle"
+                                                   id="branchesTable-@supplier.SupplierId">
+                                                <thead class="table-light">
+                                                    <tr>
+                                                        <th>ID</th>
+                                                        <th>Название филиала</th>
+                                                        <th>Телефоны</th>
+                                                        <th>Почты</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    @foreach (var branch in supplier.Subsuppliers)
+                                                    {
+                                                        <tr>
+                                                            <td>@branch.SubsupplierId</td>
+                                                            <td>@branch.SubsupplierName</td>
+                                                            <td>
+                                                                @if (branch.SubsupplierPhones?.Any() == true)
+                                                                {
+                                                                    <ul class="list-unstyled mb-0">
+                                                                        @foreach (var p in branch.SubsupplierPhones)
+                                                                        {
+                                                                            <li>@p.Phone</li>
+                                                                        }
+                                                                    </ul>
+                                                                }
+                                                                else
+                                                                {
+                                                                    <span class="text-muted">—</span>
+                                                                }
+                                                            </td>
+                                                            <td>
+                                                                @if (branch.SubsupplierEmails?.Any() == true)
+                                                                {
+                                                                    <ul class="list-unstyled mb-0">
+                                                                        @foreach (var e in branch.SubsupplierEmails)
+                                                                        {
+                                                                            <li>@e.SubsupplierEmail</li>
+                                                                        }
+                                                                    </ul>
+                                                                }
+                                                                else
+                                                                {
+                                                                    <span class="text-muted">—</span>
+                                                                }
+                                                            </td>
+                                                        </tr>
+                                                    }
+                                                </tbody>
+                                            </table>
+                                        }
+                                        else
+                                        {
+                                            <p class="text-muted">Нет филиалов.</p>
+                                        }
+                                    </div>
+                                    <div class="modal-footer">
+                                        <button type="button"
+                                                class="btn btn-secondary"
+                                                data-bs-dismiss="modal">
+                                            Закрыть
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                    <!-- /модалки -->
+
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+@section Scripts {
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            // Поиск поставщиков
+            document
+                .getElementById('supplierSearch')
+                .addEventListener('keyup', function () {
+                    const filter = this.value.toLowerCase();
+                    document
+                        .querySelectorAll('#suppliersTable tr')
+                        .forEach(row => {
+                            const txt = row.children[1].textContent.toLowerCase();
+                            row.style.display = txt.includes(filter) ? '' : 'none';
+                        });
+                });
+
+            // Поиск филиалов в каждой модалке
+            document.querySelectorAll('.branch-search').forEach(input => {
+                input.addEventListener('keyup', function () {
+                    const filter = this.value.toLowerCase();
+                    const table = document.getElementById('branchesTable-' + this.dataset.supplierId);
+                    table.querySelectorAll('tbody tr').forEach(row => {
+                        const txt = row.children[1].textContent.toLowerCase();
+                        row.style.display = txt.includes(filter) ? '' : 'none';
+                    });
+                });
+            });
+        });
+    </script>
+}

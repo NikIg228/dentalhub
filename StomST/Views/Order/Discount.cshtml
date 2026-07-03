@@ -1,0 +1,493 @@
+﻿<style>
+        .chip {
+            display: inline-flex;
+            align-items: center;
+            padding: 0.5rem 1rem;
+            background-color: #e9ecef;
+            border: 2px solid transparent;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+            .chip.active {
+                background-color: #0d6efd;
+                color: white;
+                border-color: #0d6efd;
+            }
+
+        .contract-item {
+            background-color: #f8f9fa;
+            padding: 1.5rem;
+            border-radius: 8px;
+            border: 1px solid #dee2e6;
+        }
+
+        .modal-backdrop {
+            background-color: rgba(0, 0, 0, 0.5);
+        }
+
+        .supplier-item {
+            padding: 0.75rem;
+            border: 1px solid #dee2e6;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+            .supplier-item:hover {
+                background-color: #f8f9fa;
+                border-color: #0d6efd;
+            }
+
+            .supplier-item.selected {
+                background-color: #e7f3ff;
+                border-color: #0d6efd;
+            }
+
+        .discount-list {
+            max-height: 300px;
+            overflow-y: auto;
+        }
+
+        .discount-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem;
+            border: 1px solid #dee2e6;
+            border-radius: 6px;
+            margin-bottom: 0.5rem;
+            background-color: white;
+        }
+    </style>
+
+<div class="container-fluid py-4">
+    <section class="section">
+        <div class="row">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-body">
+                        <br>
+                        <h2 class="card-title mb-3">Выберите БИН для настройки скидки и договоров</h2>
+
+                        <div class="mb-4">
+                            <div class="chip active">
+                                <i class="bi bi-check me-2"></i>
+                                150140026571
+                            </div>
+                        </div>
+
+                        <!-- Скидки Section -->
+                        <div class="card-body border-top">
+                            <div class="d-flex align-items-center mb-3">
+                                <h6 class="me-4 mb-0">Скидки</h6>
+                                <div class="alert alert-warning py-2 px-3 mb-0 d-flex align-items-center">
+                                    <i class="bi bi-exclamation-circle me-2"></i>
+                                    <span class="small">Поставщики, которые не указаны присваивают скидки 0% в заказах</span>
+                                </div>
+                            </div>
+                            <button type="button" class="btn btn-primary btn-sm" onclick="openDiscountModal()">
+                                <span>создайте новое</span>
+                            </button>
+
+                            <!-- Список созданных скидок -->
+                            <div class="row pt-4">
+                                <div class="col-12">
+                                    <div id="discountsList" class="discount-list">
+                                        <!-- Здесь будут отображаться созданные скидки -->
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Договоры Section -->
+                        <div class="card-body border-top">
+                            <div class="d-flex align-items-center mb-3">
+                                <h6 class="me-4 mb-0">Договоры</h6>
+                                <div class="alert alert-warning py-2 px-3 mb-0 d-flex align-items-center">
+                                    <i class="bi bi-exclamation-circle me-2"></i>
+                                </div>
+                            </div>
+                            <button type="button" class="btn btn-primary btn-sm mb-4" onclick="uploadContract()">
+                                <span>Выгрузить новый договор</span>
+                            </button>
+
+                            <div class="row">
+                                <div class="col-md-6 col-lg-4">
+                                    <div class="contract-item">
+                                        <div class="d-flex justify-content-between align-items-center mb-3">
+                                            <div class="fw-bold">Аманат (Алматы)</div>
+                                            <button type="button" class="btn btn-warning btn-sm rounded-circle p-2" onclick="deleteContract(this)">
+                                                <i class="bi bi-trash"></i>
+                                            </button>
+                                        </div>
+
+                                        <div class="mb-3">
+                                            <label for="discount-input" class="form-label">Скидка</label>
+                                            <div class="input-group input-group-sm">
+                                                <span class="input-group-text">%</span>
+                                                <input type="text" class="form-control" id="discount-input" value="5" readonly>
+                                            </div>
+                                        </div>
+
+                                        <div class="mb-3">
+                                            <span class="small">Наименование договора:</span><br>
+                                            <code class="small">Договор № АЛ-23/05/14 от 19.05.2023</code>
+                                        </div>
+
+                                        <div class="form-check form-check-sm">
+                                            <input class="form-check-input" type="checkbox" id="working-contract" checked disabled>
+                                            <label class="form-check-label small text-muted" for="working-contract">
+                                                Рабочий договор
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Здесь будут добавляться новые договоры -->
+                                <div id="contractsList" class="col-12">
+                                    <div class="row" id="contractsContainer"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+</div>
+
+<!-- Модальное окно для создания скидки -->
+<div class="modal fade" id="discountModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Создать новую скидку</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <h6 class="mb-3">Выберите поставщика</h6>
+                        <div id="suppliersList">
+                            <div class="supplier-item mb-2" onclick="selectSupplier(this)" data-supplier="Аманат (Алматы)">
+                                <div class="fw-medium">Аманат (Алматы)</div>
+                                <small class="text-muted">ТОО "Аманат Фарм"</small>
+                            </div>
+                            <div class="supplier-item mb-2" onclick="selectSupplier(this)" data-supplier="Евразия (Астана)">
+                                <div class="fw-medium">Евразия (Астана)</div>
+                                <small class="text-muted">ТОО "Евразия Мед"</small>
+                            </div>
+                            <div class="supplier-item mb-2" onclick="selectSupplier(this)" data-supplier="Фармацевт (Шымкент)">
+                                <div class="fw-medium">Фармацевт (Шымкент)</div>
+                                <small class="text-muted">ИП "Фармацевт Плюс"</small>
+                            </div>
+                            <div class="supplier-item mb-2" onclick="selectSupplier(this)" data-supplier="Медснаб (Караганда)">
+                                <div class="fw-medium">Медснаб (Караганда)</div>
+                                <small class="text-muted">ТОО "Медснаб КZ"</small>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <h6 class="mb-3">Настройте скидку</h6>
+                        <div class="mb-3">
+                            <label for="discountPercent" class="form-label">Процент скидки</label>
+                            <div class="input-group">
+                                <input type="number" class="form-control" id="discountPercent" min="0" max="100" step="0.1" placeholder="0.0">
+                                <span class="input-group-text">%</span>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label for="discountDescription" class="form-label">Описание (необязательно)</label>
+                            <textarea class="form-control" id="discountDescription" rows="3" placeholder="Дополнительная информация о скидке"></textarea>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Отмена</button>
+                <button type="button" class="btn btn-primary" onclick="createDiscount()">Создать скидку</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Модальное окно для загрузки договора -->
+<div class="modal fade" id="contractModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Загрузить новый договор</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="mb-3">
+                    <label for="contractFile" class="form-label">Выберите файл договора</label>
+                    <input type="file" class="form-control" id="contractFile" accept=".pdf,.doc,.docx">
+                </div>
+                <div class="mb-3">
+                    <label for="contractNumber" class="form-label">Номер договора</label>
+                    <input type="text" class="form-control" id="contractNumber" placeholder="Например: АЛ-23/05/14">
+                </div>
+                <div class="mb-3">
+                    <label for="contractDate" class="form-label">Дата договора</label>
+                    <input type="date" class="form-control" id="contractDate">
+                </div>
+                <div class="mb-3">
+                    <label for="contractSupplier" class="form-label">Поставщик</label>
+                    <select class="form-select" id="contractSupplier">
+                        <option value="">Выберите поставщика</option>
+                        <option value="Аманат (Алматы)">Аманат (Алматы)</option>
+                        <option value="Евразия (Астана)">Евразия (Астана)</option>
+                        <option value="Фармацевт (Шымкент)">Фармацевт (Шымкент)</option>
+                        <option value="Медснаб (Караганда)">Медснаб (Караганда)</option>
+                    </select>
+                </div>
+                <div class="form-check">
+                    <input class="form-check-input" type="checkbox" id="isWorkingContract" checked>
+                    <label class="form-check-label" for="isWorkingContract">
+                        Рабочий договор
+                    </label>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Отмена</button>
+                <button type="button" class="btn btn-primary" onclick="saveContract()">Сохранить договор</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+@section Scripts {
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+    <script>
+        let selectedSupplier = null;
+        let discounts = [];
+        let contracts = [];
+
+        // Функция открытия модального окна для создания скидки
+        function openDiscountModal() {
+            const modal = new bootstrap.Modal(document.getElementById('discountModal'));
+            modal.show();
+        }
+
+        // Функция выбора поставщика
+        function selectSupplier(element) {
+            // Убираем выделение с других поставщиков
+            document.querySelectorAll('.supplier-item').forEach(item => {
+                item.classList.remove('selected');
+            });
+
+            // Выделяем выбранного поставщика
+            element.classList.add('selected');
+            selectedSupplier = element.dataset.supplier;
+        }
+
+        // Функция создания скидки
+        function createDiscount() {
+            if (!selectedSupplier) {
+                alert('Пожалуйста, выберите поставщика');
+                return;
+            }
+
+            const percent = document.getElementById('discountPercent').value;
+            if (!percent || percent <= 0) {
+                alert('Пожалуйста, укажите корректный процент скидки');
+                return;
+            }
+
+            const description = document.getElementById('discountDescription').value;
+
+            // Создаем объект скидки
+            const discount = {
+                id: Date.now(),
+                supplier: selectedSupplier,
+                percent: parseFloat(percent),
+                description: description
+            };
+
+            discounts.push(discount);
+            renderDiscounts();
+
+            // Закрываем модальное окно и очищаем форму
+            const modal = bootstrap.Modal.getInstance(document.getElementById('discountModal'));
+            modal.hide();
+            clearDiscountForm();
+        }
+
+        // Функция отображения списка скидок
+        function renderDiscounts() {
+            const container = document.getElementById('discountsList');
+            container.innerHTML = '';
+
+            discounts.forEach(discount => {
+                const discountElement = document.createElement('div');
+                discountElement.className = 'discount-item';
+                discountElement.innerHTML = `
+                                    <div>
+                                        <div class="fw-medium">${discount.supplier}</div>
+                                        <small class="text-muted">${discount.description || 'Без описания'}</small>
+                                    </div>
+                                    <div class="d-flex align-items-center">
+                                        <span class="badge bg-primary me-2">${discount.percent}%</span>
+                                        <button type="button" class="btn btn-sm btn-outline-danger" onclick="deleteDiscount(${discount.id})">
+                                            <i class="bi bi-trash"></i>
+                                        </button>
+                                    </div>
+                                `;
+                container.appendChild(discountElement);
+            });
+        }
+
+        // Функция удаления скидки
+        function deleteDiscount(id) {
+            if (confirm('Вы уверены, что хотите удалить эту скидку?')) {
+                discounts = discounts.filter(discount => discount.id !== id);
+                renderDiscounts();
+            }
+        }
+
+        // Функция очистки формы создания скидки
+        function clearDiscountForm() {
+            selectedSupplier = null;
+            document.querySelectorAll('.supplier-item').forEach(item => {
+                item.classList.remove('selected');
+            });
+            document.getElementById('discountPercent').value = '';
+            document.getElementById('discountDescription').value = '';
+        }
+
+        // Функция загрузки договора
+        function uploadContract() {
+            const modal = new bootstrap.Modal(document.getElementById('contractModal'));
+            modal.show();
+        }
+
+        // Функция сохранения договора
+        function saveContract() {
+            const fileInput = document.getElementById('contractFile');
+            const contractNumber = document.getElementById('contractNumber').value;
+            const contractDate = document.getElementById('contractDate').value;
+            const contractSupplier = document.getElementById('contractSupplier').value;
+            const isWorking = document.getElementById('isWorkingContract').checked;
+
+            if (!fileInput.files[0]) {
+                alert('Пожалуйста, выберите файл договора');
+                return;
+            }
+
+            if (!contractNumber || !contractDate || !contractSupplier) {
+                alert('Пожалуйста, заполните все обязательные поля');
+                return;
+            }
+
+            // Получаем скидку для выбранного поставщика
+            const supplierDiscount = discounts.find(d => d.supplier === contractSupplier);
+            const discountPercent = supplierDiscount ? supplierDiscount.percent : 0;
+
+            // Создаем объект договора
+            const contract = {
+                id: Date.now(),
+                supplier: contractSupplier,
+                number: contractNumber,
+                date: contractDate,
+                fileName: fileInput.files[0].name,
+                isWorking: isWorking,
+                discount: discountPercent
+            };
+
+            contracts.push(contract);
+            renderContracts();
+
+            // Закрываем модальное окно и очищаем форму
+            const modal = bootstrap.Modal.getInstance(document.getElementById('contractModal'));
+            modal.hide();
+            clearContractForm();
+        }
+
+        // Функция отображения договоров
+        function renderContracts() {
+            const container = document.getElementById('contractsContainer');
+
+            // Очищаем контейнер, но оставляем первый договор
+            const existingContracts = container.querySelectorAll('.contract-item-new');
+            existingContracts.forEach(item => item.remove());
+
+            contracts.forEach(contract => {
+                const contractElement = document.createElement('div');
+                contractElement.className = 'col-md-6 col-lg-4 contract-item-new';
+                contractElement.innerHTML = `
+                                    <div class="contract-item">
+                                        <div class="d-flex justify-content-between align-items-center mb-3">
+                                            <div class="fw-bold">${contract.supplier}</div>
+                                            <button type="button" class="btn btn-warning btn-sm rounded-circle p-2" onclick="deleteContract(this, ${contract.id})">
+                                                <i class="bi bi-trash"></i>
+                                            </button>
+                                        </div>
+
+                                        <div class="mb-3">
+                                            <label class="form-label">Скидка</label>
+                                            <div class="input-group input-group-sm">
+                                                <span class="input-group-text">%</span>
+                                                <input type="text" class="form-control" value="${contract.discount}" readonly>
+                                            </div>
+                                        </div>
+
+                                        <div class="mb-3">
+                                            <span class="small">Наименование договора:</span><br>
+                                            <code class="small">Договор № ${contract.number} от ${new Date(contract.date).toLocaleDateString('ru-RU')}</code>
+                                        </div>
+
+                                        <div class="mb-3">
+                                            <span class="small">Файл:</span><br>
+                                            <small class="text-muted">${contract.fileName}</small>
+                                        </div>
+
+                                        <div class="form-check form-check-sm">
+                                            <input class="form-check-input" type="checkbox" ${contract.isWorking ? 'checked' : ''} disabled>
+                                            <label class="form-check-label small text-muted">
+                                                Рабочий договор
+                                            </label>
+                                        </div>
+                                    </div>
+                                `;
+                container.appendChild(contractElement);
+            });
+        }
+
+        // Функция удаления договора
+        function deleteContract(button, contractId = null) {
+            if (confirm('Вы уверены, что хотите удалить этот договор?')) {
+                if (contractId) {
+                    // Удаляем из массива contracts
+                    contracts = contracts.filter(contract => contract.id !== contractId);
+                    renderContracts();
+                } else {
+                    // Удаляем существующий договор (первый)
+                    button.closest('.contract-item').parentElement.remove();
+                }
+            }
+        }
+
+        // Функция очистки формы договора
+        function clearContractForm() {
+            document.getElementById('contractFile').value = '';
+            document.getElementById('contractNumber').value = '';
+            document.getElementById('contractDate').value = '';
+            document.getElementById('contractSupplier').value = '';
+            document.getElementById('isWorkingContract').checked = true;
+        }
+
+        // Обработчик закрытия модального окна скидки
+        document.getElementById('discountModal').addEventListener('hidden.bs.modal', function () {
+            clearDiscountForm();
+        });
+
+        // Обработчик закрытия модального окна договора
+        document.getElementById('contractModal').addEventListener('hidden.bs.modal', function () {
+            clearContractForm();
+        });
+    </script>
+}
